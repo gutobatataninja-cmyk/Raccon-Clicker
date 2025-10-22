@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Raccoon Clicker</title>
     <style>
         body {
@@ -15,54 +15,76 @@
             align-items: center;
             height: 100vh;
             font-family: Arial, sans-serif;
+            box-sizing: border-box;
         }
 
         #game-container {
             position: relative;
-            width: 800px;
-            height: 600px;
+            width: 100%;
+            max-width: 1200px;
+            height: 100vh;
+            max-height: 900px;
             background-color: #2c2c2c;
             border: 2px solid #444;
             overflow: hidden;
-            transition: background-color 0.5s ease;
         }
 
-        #game-container.rebirth {
+        #inner-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            max-width: 1180px;
+            max-height: 880px;
+            margin: auto;
+            background: rgb(0, 0, 255);
+            animation: rgbCycle 60s linear infinite;
+        }
+
+        @keyframes rgbCycle {
+            0% { background-color: rgb(0, 0, 255); }
+            16.67% { background-color: rgb(0, 255, 255); }
+            33.33% { background-color: rgb(0, 255, 0); }
+            50% { background-color: rgb(255, 255, 0); }
+            66.67% { background-color: rgb(255, 0, 0); }
+            83.33% { background-color: rgb(255, 0, 255); }
+            100% { background-color: rgb(0, 0, 255); }
+        }
+
+        #inner-container.rebirth {
             animation: fadeToWhite 0.5s forwards, fadeBack 0.5s 0.5s forwards;
         }
 
-        #game-container.endgame {
+        #inner-container.endgame {
             animation: fadeToBlack 1s forwards;
         }
 
         @keyframes fadeToWhite {
-            0% {
-                background-color: #2c2c2c;
-            }
-
-            100% {
-                background-color: white;
-            }
+            0% { background: inherit; }
+            100% { background-color: white; }
         }
 
         @keyframes fadeBack {
-            0% {
-                background-color: white;
-            }
-
-            100% {
-                background-color: #2c2c2c;
-            }
+            0% { background-color: white; }
+            100% { background: rgb(0, 0, 255); animation: rgbCycle 60s linear infinite; }
         }
 
         @keyframes fadeToBlack {
-            0% {
-                background-color: #2c2c2c;
-            }
+            0% { background: inherit; }
+            100% { background-color: black; }
+        }
 
-            100% {
-                background-color: black;
-            }
+        @keyframes shakeEffect {
+            0% { transform: translate(calc(-50% - 10px), -50%) translateX(0); }
+            10% { transform: translate(calc(-50% - 10px), -50%) translateX(-5px); }
+            20% { transform: translate(calc(-50% - 10px), -50%) translateX(5px); }
+            30% { transform: translate(calc(-50% - 10px), -50%) translateX(-5px); }
+            40% { transform: translate(calc(-50% - 10px), -50%) translateX(5px); }
+            50% { transform: translate(calc(-50% - 10px), -50%) translateX(-5px); }
+            60% { transform: translate(calc(-50% - 10px), -50%) translateX(5px); }
+            70% { transform: translate(calc(-50% - 10px), -50%) translateX(-5px); }
+            80% { transform: translate(calc(-50% - 10px), -50%) translateX(5px); }
+            90% { transform: translate(calc(-50% - 10px), -50%) translateX(-5px); }
+            100% { transform: translate(calc(-50% - 10px), -50%) translateX(0); }
         }
 
         #raccoon {
@@ -70,10 +92,10 @@
             left: 50%;
             top: 50%;
             transform: translate(calc(-50% - 10px), -50%);
-            width: 80px;
-            height: 80px;
-            font-size: 80px;
-            line-height: 80px;
+            width: 50px;
+            height: 50px;
+            font-size: 50px;
+            line-height: 50px;
             text-align: center;
             cursor: pointer;
             user-select: none;
@@ -96,82 +118,91 @@
             filter: hue-rotate(120deg) hue-rotate(-30deg);
         }
 
+        #raccoon.shake {
+            animation: shakeEffect 0.5s ease-in-out;
+        }
+
         @keyframes zoomEffect {
-            0% {
-                transform: translate(calc(-50% - 10px), -50%) scale(1);
-            }
-
-            50% {
-                transform: translate(calc(-50% - 10px), -50%) scale(0.8);
-            }
-
-            100% {
-                transform: translate(calc(-50% - 10px), -50%) scale(1);
-            }
+            0% { transform: translate(calc(-50% - 10px), -50%) scale(1); }
+            50% { transform: translate(calc(-50% - 10px), -50%) scale(0.8); }
+            100% { transform: translate(calc(-50% - 10px), -50%) scale(1); }
         }
 
         #score {
             position: absolute;
-            top: 10px;
-            right: 10px;
-            color: white;
-            font-size: 24px;
+            top: 2%;
+            right: 2%;
+            color: #000000;
+            font-size: 13px;
             display: flex;
             align-items: center;
             z-index: 10;
         }
 
+        #version {
+            position: absolute;
+            top: 2%;
+            left: 2%;
+            color: #000000;
+            font-size: 13px;
+            z-index: 10;
+        }
+
         #click-counter {
             position: absolute;
-            top: 40px;
-            right: 10px;
-            color: white;
-            font-size: 20px;
+            top: 6%;
+            right: 2%;
+            color: #000000;
+            font-size: 13px;
             z-index: 10;
         }
 
         #playtime {
             position: absolute;
-            top: 20%;
+            top: 15%;
             left: 50%;
             transform: translate(-50%, 0);
-            color: white;
-            font-size: 32px;
+            color: #000000;
+            font-size: 30px;
             z-index: 10;
         }
 
         #shop-container {
             position: absolute;
-            bottom: 10px;
-            left: 10px;
+            bottom: 2%;
+            left: 2%;
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 0.5vh;
             z-index: 10;
+            width: 40%;
+            max-width: 200px;
         }
 
         #shop-items,
         #info-content {
             display: none;
             flex-direction: column;
-            gap: 10px;
+            gap: 0.5vh;
         }
 
         .shop-item,
         .info-button,
-        .rebirth-button,
         #toggle-particles {
             background-color: #444;
             color: white;
-            padding: 5px;
+            padding: 0.5vh;
             border: none;
             cursor: pointer;
-            font-size: 14px;
+            font-size: 13px;
+            min-height: 44px;
+            width: 100%;
+            box-sizing: border-box;
+            text-align: left;
         }
 
         .shop-item:hover,
         .info-button:hover,
-        .rebirth-button:hover,
         #toggle-particles:hover {
             background-color: #555;
         }
@@ -184,39 +215,51 @@
 
         #info-content {
             background-color: #444;
-            padding: 10px;
+            padding: 1%;
             color: white;
-            font-size: 14px;
-            max-width: 200px;
+            font-size: 13px;
+            max-width: 100%;
         }
 
         #secret-code-container {
             display: flex;
             align-items: center;
-            gap: 5px;
+            gap: 0.5vw;
         }
 
         #secret-code-input {
             background-color: #555;
             color: white;
             border: 1px solid #666;
-            padding: 5px;
-            font-size: 14px;
+            padding: 0.5vh;
+            font-size: 13px;
+            width: 60%;
+            min-height: 44px;
+            box-sizing: border-box;
         }
 
-        #rebirth-buttons {
-            display: none;
-            grid-template-columns: repeat(5, 1fr);
-            gap: 5px;
-            margin-top: 10px;
+        #enter-code {
+            background-color: #444;
+            color: white;
+            padding: 0.5vh;
+            border: none;
+            cursor: pointer;
+            font-size: 13px;
+            min-height: 44px;
+            width: 40%;
+            box-sizing: border-box;
+        }
+
+        #enter-code:hover {
+            background-color: #555;
         }
 
         #rebirth-bar-container {
             position: absolute;
-            bottom: 10px;
-            right: 10px;
-            width: 100px;
-            height: 20px;
+            bottom: 2%;
+            right: 2%;
+            width: 150px;
+            height: 3vh;
             background-color: #666;
             border: 1px solid #444;
             z-index: 10;
@@ -231,33 +274,36 @@
 
         #rebirth-label {
             position: absolute;
-            bottom: 30px;
-            right: 10px;
-            color: white;
-            font-size: 14px;
+            bottom: 6%;
+            right: 2%;
+            color: #000000;
+            font-size: 13px;
             z-index: 10;
         }
 
         #rebirth-counter {
             position: absolute;
-            bottom: 70px;
+            bottom: 12%;
             left: 50%;
             transform: translateX(-50%);
-            color: white;
-            font-size: 16px;
+            color: #000000;
+            font-size: 13px;
             z-index: 10;
+            display: none;
         }
 
         #rebirth-progress-container {
             position: absolute;
-            bottom: 50px;
+            bottom: 8%;
             left: 50%;
             transform: translateX(-50%);
-            width: 150px;
-            height: 10px;
+            width: 20vw;
+            max-width: 150px;
+            height: 1.5vh;
             background-color: #666;
             border: 1px solid #444;
             z-index: 10;
+            display: none;
         }
 
         #rebirth-progress-bar {
@@ -269,9 +315,9 @@
 
         .particle {
             position: absolute;
-            width: 10px;
-            height: 10px;
-            font-size: 10px;
+            width: 13px;
+            height: 13px;
+            font-size: 13px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -281,13 +327,8 @@
         }
 
         @keyframes particleMove {
-            0% {
-                opacity: 1;
-            }
-
-            100% {
-                opacity: 0;
-            }
+            0% { opacity: 1; }
+            100% { opacity: 0; }
         }
 
         .timer-circle {
@@ -295,8 +336,10 @@
             left: 50%;
             top: 50%;
             transform: translate(-50%, -50%);
-            width: 200px;
-            height: 200px;
+            width: 25vw;
+            max-width: 200px;
+            height: 25vw;
+            max-height: 200px;
             z-index: 5;
         }
 
@@ -313,91 +356,191 @@
             top: 30%;
             left: 50%;
             transform: translate(-50%, -50%);
-            color: white;
-            font-size: 24px;
+            color: #000000;
+            font-size: 13px;
             text-align: center;
             z-index: 15;
             display: none;
-            max-width: 600px;
+            max-width: 80%;
+        }
+
+        #endgame-message.white {
+            color: #ffffff;
+        }
+
+        .connection-line {
+            z-index: 3;
+        }
+
+        @media (max-width: 600px) {
+            #raccoon {
+                width: 8vw;
+                height: 8vw;
+                font-size: 8vw;
+                line-height: 8vw;
+            }
+
+            @keyframes zoomEffect {
+                0% { transform: translate(calc(-50% - 10px), -50%) scale(1); }
+                50% { transform: translate(calc(-50% - 10px), -50%) scale(0.8); }
+                100% { transform: translate(calc(-50% - 10px), -50%) scale(1); }
+            }
+
+            @keyframes shakeEffect {
+                0% { transform: translate(calc(-50% - 10px), -50%) translateX(0); }
+                10% { transform: translate(calc(-50% - 10px), -50%) translateX(-5px); }
+                20% { transform: translate(calc(-50% - 10px), -50%) translateX(5px); }
+                30% { transform: translate(calc(-50% - 10px), -50%) translateX(-5px); }
+                40% { transform: translate(calc(-50% - 10px), -50%) translateX(5px); }
+                50% { transform: translate(calc(-50% - 10px), -50%) translateX(-5px); }
+                60% { transform: translate(calc(-50% - 10px), -50%) translateX(5px); }
+                70% { transform: translate(calc(-50% - 10px), -50%) translateX(-5px); }
+                80% { transform: translate(calc(-50% - 10px), -50%) translateX(5px); }
+                90% { transform: translate(calc(-50% - 10px), -50%) translateX(-5px); }
+                100% { transform: translate(calc(-50% - 10px), -50%) translateX(0); }
+            }
+
+            #score {
+                font-size: 2vw;
+                color: #000000;
+            }
+
+            #version {
+                font-size: 2vw;
+                color: #000000;
+            }
+
+            #click-counter {
+                font-size: 2vw;
+                color: #000000;
+            }
+
+            #playtime {
+                font-size: 5vw;
+                color: #000000;
+            }
+
+            .shop-item,
+            .info-button,
+            #toggle-particles,
+            #enter-code {
+                font-size: 2vw;
+                min-height: 44px;
+            }
+
+            #info-content {
+                font-size: 2vw;
+            }
+
+            #secret-code-input {
+                font-size: 2vw;
+            }
+
+            #rebirth-label {
+                font-size: 2vw;
+                color: #000000;
+            }
+
+            #rebirth-counter {
+                font-size: 2vw;
+                color: #000000;
+            }
+
+            #rebirth-bar-container {
+                width: 25vw;
+            }
+
+            .particle {
+                width: 2vw;
+                height: 2vw;
+                font-size: 2vw;
+            }
+
+            #endgame-message {
+                font-size: 2vw;
+                color: #000000;
+            }
+
+            #endgame-message.white {
+                color: #ffffff;
+            }
         }
     </style>
 </head>
 
 <body>
     <div id="game-container">
-        <div id="raccoon">🦝</div>
-        <div id="score">0.00 💰</div>
-        <div id="click-counter">Clicks: 0</div>
-        <div id="playtime">00:00:00</div>
-        <div id="shop-container">
-            <button class="shop-item" id="toggle-shop">Open Shop</button>
-            <div id="shop-items">
-                <button class="shop-item" id="buy-autoclicker"
-                    title="Adds an automatic click every 1.5s and an orbiting raccoon (cost increases 10x per purchase)">🤖
-                    Auto Clicker: 5 Racoins (0)</button>
-                <button class="shop-item" id="buy-glasses"
-                    title="Makes Auto Clicker, Hot Click, and Cyber Click 2x faster (cost doubles per purchase)">🕶️
-                    Glasses: 10 Racoins (0)</button>
-                <button class="shop-item" id="buy-trashcan"
-                    title="Makes clicks worth 2x more (cost doubles per purchase)">🗑️ Trashcan: 50 Racoins (0)</button>
-                <button class="shop-item" id="buy-hotclick" style="display: none;"
-                    title="Clicks 4x faster than Auto Clicker, turns raccoon red, emits fire particles, and adds an orange orbiting raccoon (cost doubles per purchase). Unlocked at rebirth 2">🔥
-                    Hot Click: 200 Racoins (0)</button>
-                <button class="shop-item" id="buy-cyberclick" style="display: none;"
-                    title="Performs 5 clicks per activation, darkens raccoon, and adds a gray orbiting raccoon (cost doubles per purchase). Unlocked at rebirth 5">💾
-                    Cyber Click: 700 Racoins (0)</button>
-                <button class="shop-item" id="buy-pizza" style="display: none;"
-                    title="Increases click speed by 5x for 10s (cost increases 3x per purchase). Unlocked at rebirth 3">🍕
-                    Pizza: 300 Racoins</button>
-                <button class="shop-item" id="buy-uranium" style="display: none;"
-                    title="Turns the raccoon green and makes each click worth 1000 for 5s (cost increases 10x per purchase). Unlocked at rebirth 8">☢️
-                    Uranium 235: 10000 Racoins</button>
-                <button class="shop-item" id="buy-mitosis" style="display: none;"
-                    title="Removes all Auto Clickers and Hot Clicks, leaving one that doubles every 10s (one-time purchase). Unlocked at rebirth 9">🧬
-                    Mitosis: 90000 Racoins</button>
-            </div>
-            <button id="toggle-particles">✨ Particle: Normal</button>
-            <button class="info-button" id="toggle-info">Info</button>
-            <div id="info-content">
-                <p>This is a game of great dedication, keep in mind that if you exit the browser, your progress is LOST. Be
-                    careful and reach the end! :P<br><br>Hover over items in the shop to see their descriptions.</p>
-                <p>Secret Codes</p>
-                <div id="secret-code-container">
-                    <input type="text" id="secret-code-input" placeholder="Enter code">
-                    <button id="enter-code">Enter</button>
+        <div id="inner-container">
+            <div id="raccoon">🦝</div>
+            <div id="version">Version 0.0.1</div>
+            <div id="score">0.00 💰</div>
+            <div id="click-counter">Clicks: 0</div>
+            <div id="playtime">00:00:00</div>
+            <div id="shop-container">
+                <button class="shop-item" id="toggle-shop">Open Shop</button>
+                <div id="shop-items">
+                    <button class="shop-item" id="buy-autoclicker"
+                        title="Adds an automatic click every 1.5s and an orbiting raccoon (cost increases 1.5x per purchase)">🤖
+                        Auto Clicker: 5 Racoins (0)</button>
+                    <button class="shop-item" id="buy-glasses"
+                        title="Makes Auto Clicker, Hot Click, and Cyber Click 2x faster (cost doubles per purchase)">🕶️
+                        Glasses: 10 Racoins (0)</button>
+                    <button class="shop-item" id="buy-trashcan"
+                        title="Makes clicks worth 2x more (cost doubles per purchase, max 20, not purchasable at rebirth 11+)">🗑️
+                        Trashcan: 50 Racoins (0/20)</button>
+                    <button class="shop-item" id="buy-hotclick" style="display: none;"
+                        title="Clicks 4x faster than Auto Clicker, turns raccoon red, emits fire particles, and adds an orange orbiting raccoon (cost doubles per rebirth and per purchase). Unlocked at rebirth 2">🔥
+                        Hot Click: 200 Racoins (0)</button>
+                    <button class="shop-item" id="buy-pizza" style="display: none;"
+                        title="Increases click speed by 5x for 5s (cost doubles per rebirth, triples per purchase). Unlocked at rebirth 3">🍕
+                        Pizza: 300 Racoins</button>
+                    <button class="shop-item" id="buy-cyberclick" style="display: none;"
+                        title="Performs 5 clicks per activation and adds a gray orbiting raccoon (cost doubles per rebirth and per purchase). Unlocked at rebirth 5">💾
+                        Cyber Click: 700 Racoins (0)</button>
+                    <button class="shop-item" id="buy-coffee" style="display: none;"
+                        title="Mmm... coffee. 10x click speed for 2s (cost doubles per rebirth, 10x per purchase). Unlocked at rebirth 8">☕
+                        Coffee: 1500 Racoins</button>
+                    <button class="shop-item" id="buy-uranium" style="display: none;"
+                        title="Turns the raccoon green and makes each click worth 1000 for 5s (cost doubles per rebirth, 10x per purchase). Unlocked at rebirth 8">☢️
+                        Uranium 235: 10000 Racoins</button>
+                    <button class="shop-item" id="buy-mitosis" style="display: none;"
+                        title="Removes all Auto Clickers and Hot Clicks, starts with one orbiting raccoon that doubles every 10s (cost 5x per rebirth, one-time purchase). Unlocked at rebirth 18">🧬
+                        Mitosis: 90000 Racoins</button>
+                    <button class="shop-item" id="buy-neuralnetwork" style="display: none;"
+                        title="Applies a 10x buff per purchase to all orbiting raccoon clicks, enables synapse lines between orbiting raccoons (cost doubles per rebirth and per purchase). Unlocked at rebirth 15">🧠
+                        Neural Network: 100000000 Racoins (0)</button>
                 </div>
-                <div id="rebirth-buttons">
-                    <button class="rebirth-button" onclick="jumpToRebirth(0)">Jump to Rebirth 0</button>
-                    <button class="rebirth-button" onclick="jumpToRebirth(1)">Jump to Rebirth 1</button>
-                    <button class="rebirth-button" onclick="jumpToRebirth(2)">Jump to Rebirth 2</button>
-                    <button class="rebirth-button" onclick="jumpToRebirth(3)">Jump to Rebirth 3</button>
-                    <button class="rebirth-button" onclick="jumpToRebirth(4)">Jump to Rebirth 4</button>
-                    <button class="rebirth-button" onclick="jumpToRebirth(5)">Jump to Rebirth 5</button>
-                    <button class="rebirth-button" onclick="jumpToRebirth(6)">Jump to Rebirth 6</button>
-                    <button class="rebirth-button" onclick="jumpToRebirth(7)">Jump to Rebirth 7</button>
-                    <button class="rebirth-button" onclick="jumpToRebirth(8)">Jump to Rebirth 8</button>
-                    <button class="rebirth-button" onclick="jumpToRebirth(9)">Jump to Rebirth 9</button>
+                <button id="toggle-particles">✨ Particle: Normal</button>
+                <button class="info-button" id="toggle-info">Info</button>
+                <div id="info-content">
+                    <p>This is a game of great dedication. Note that exiting the browser will reset your progress. Be careful and reach the end! :P<br><br>Hover over shop items to see their descriptions.</p>
+                    <p>Secret Codes</p>
+                    <div id="secret-code-container">
+                        <input type="text" id="secret-code-input" placeholder="Enter code">
+                        <button id="enter-code">Enter</button>
+                    </div>
                 </div>
             </div>
+            <div id="rebirth-label">Rebirth Progress: 0/1000</div>
+            <div id="rebirth-bar-container">
+                <div id="rebirth-bar"></div>
+            </div>
+            <div id="rebirth-counter">Rebirths: 0/20</div>
+            <div id="rebirth-progress-container">
+                <div id="rebirth-progress-bar"></div>
+            </div>
+            <div id="endgame-message">Your clicks are so powerful that the fabric of space-time has ruptured. Now, you have only one choice...</div>
         </div>
-        <div id="rebirth-label">Rebirth Progress: 0/1000</div>
-        <div id="rebirth-bar-container">
-            <div id="rebirth-bar"></div>
-        </div>
-        <div id="rebirth-counter">Rebirths: 0/10</div>
-        <div id="rebirth-progress-container">
-            <div id="rebirth-progress-bar"></div>
-        </div>
-        <div id="endgame-message">Your clicks are so strong that the fabric of space-time has ruptured. Now, you only have
-            one choice...</div>
     </div>
 
     <script>
+        // DOM element references
         const raccoon = document.getElementById('raccoon');
         const scoreElement = document.getElementById('score');
         const clickCounterElement = document.getElementById('click-counter');
         const playtimeElement = document.getElementById('playtime');
         const gameContainer = document.getElementById('game-container');
+        const innerContainer = document.getElementById('inner-container');
         const toggleShop = document.getElementById('toggle-shop');
         const shopItems = document.getElementById('shop-items');
         const toggleInfo = document.getElementById('toggle-info');
@@ -411,15 +554,20 @@
         const buyHotClick = document.getElementById('buy-hotclick');
         const buyCyberClick = document.getElementById('buy-cyberclick');
         const buyPizza = document.getElementById('buy-pizza');
+        const buyCoffee = document.getElementById('buy-coffee');
         const buyUranium = document.getElementById('buy-uranium');
         const buyMitosis = document.getElementById('buy-mitosis');
+        const buyNeuralNetwork = document.getElementById('buy-neuralnetwork');
         const rebirthBar = document.getElementById('rebirth-bar');
         const rebirthLabel = document.getElementById('rebirth-label');
         const rebirthCounter = document.getElementById('rebirth-counter');
         const rebirthProgressBar = document.getElementById('rebirth-progress-bar');
         const endgameMessage = document.getElementById('endgame-message');
-        const rebirthButtons = document.getElementById('rebirth-buttons');
+        const shopContainer = document.getElementById('shop-container');
+        const rebirthBarContainer = document.getElementById('rebirth-bar-container');
+        const rebirthProgressContainer = document.getElementById('rebirth-progress-container');
 
+        // Game state variables
         let score = 0;
         let clickValue = 1;
         let overrideClickValue = false;
@@ -434,9 +582,12 @@
         let cyberClicks = 0;
         let cyberClickCost = 700;
         let pizzaCost = 300;
+        let coffeeCost = 1500;
         let uraniumCost = 10000;
         let mitosisBought = false;
         let mitosisCost = 90000;
+        let neuralNetworks = 0;
+        let neuralNetworkCost = 100000000;
         let mitoticAutoClickers = 0;
         let autoclickInterval = 1500;
         let hotClickInterval = 1500 / 4;
@@ -446,6 +597,7 @@
         let cyberClickIntervalId = null;
         let mitosisIntervalId = null;
         let pizzaTimeout = null;
+        let coffeeTimeout = null;
         let uraniumTimeout = null;
         let totalClicks = 0;
         let rebirthClicks = 0;
@@ -453,14 +605,16 @@
         let rebirthCount = 0;
         let rebirthMultiplier = 1;
         let orbitingRaccoons = [];
+        let connections = [];
         let isHotClickUnlocked = false;
         let isCyberClickUnlocked = false;
         let isPizzaUnlocked = false;
+        let isCoffeeUnlocked = false;
         let isUraniumUnlocked = false;
         let isMitosisUnlocked = false;
+        let isNeuralNetworkUnlocked = false;
         let particleLevelIndex = 3;
         let particleMultiplier = 1;
-        let isAdmin = false;
         const particleLevels = [
             { name: 'None', multiplier: 0 },
             { name: 'Very Low', multiplier: 0.125 },
@@ -471,20 +625,15 @@
             { name: 'Supernova', multiplier: 10 }
         ];
         const startTime = Date.now();
-        const centerX = 400;
-        const centerY = 300;
+        const centerX = window.innerWidth <= 600 ? window.innerWidth / 2 : 600;
+        const centerY = window.innerHeight <= 600 ? window.innerHeight / 2 : 450;
 
+        // Timer circle for Pizza
         const pizzaTimer = document.createElementNS("http://www.w3.org/2000/svg", "svg");
         pizzaTimer.id = 'pizza-timer';
         pizzaTimer.setAttribute('viewBox', '0 0 100 100');
-        pizzaTimer.style.position = 'absolute';
-        pizzaTimer.style.left = '50%';
-        pizzaTimer.style.top = '50%';
-        pizzaTimer.style.transform = 'translate(-50%, -50%)';
-        pizzaTimer.style.width = '200px';
-        pizzaTimer.style.height = '200px';
+        pizzaTimer.classList.add('timer-circle');
         pizzaTimer.style.display = 'none';
-        pizzaTimer.style.zIndex = '5';
         const pizzaCircle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
         pizzaCircle.setAttribute('cx', '50');
         pizzaCircle.setAttribute('cy', '50');
@@ -495,19 +644,32 @@
         pizzaCircle.setAttribute('stroke-dasharray', '283');
         pizzaCircle.setAttribute('stroke-dashoffset', '0');
         pizzaTimer.appendChild(pizzaCircle);
-        gameContainer.appendChild(pizzaTimer);
+        innerContainer.appendChild(pizzaTimer);
 
+        // Timer circle for Coffee
+        const coffeeTimer = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+        coffeeTimer.id = 'coffee-timer';
+        coffeeTimer.setAttribute('viewBox', '0 0 100 100');
+        coffeeTimer.classList.add('timer-circle');
+        coffeeTimer.style.display = 'none';
+        const coffeeCircle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+        coffeeCircle.setAttribute('cx', '50');
+        coffeeCircle.setAttribute('cy', '50');
+        coffeeCircle.setAttribute('r', '45');
+        coffeeCircle.setAttribute('stroke', '#A52A2A');
+        coffeeCircle.setAttribute('stroke-width', '10');
+        coffeeCircle.setAttribute('fill', 'none');
+        coffeeCircle.setAttribute('stroke-dasharray', '283');
+        coffeeCircle.setAttribute('stroke-dashoffset', '0');
+        coffeeTimer.appendChild(coffeeCircle);
+        innerContainer.appendChild(coffeeTimer);
+
+        // Timer circle for Uranium
         const uraniumTimer = document.createElementNS("http://www.w3.org/2000/svg", "svg");
         uraniumTimer.id = 'uranium-timer';
         uraniumTimer.setAttribute('viewBox', '0 0 100 100');
-        uraniumTimer.style.position = 'absolute';
-        uraniumTimer.style.left = '50%';
-        uraniumTimer.style.top = '50%';
-        uraniumTimer.style.transform = 'translate(-50%, -50%)';
-        uraniumTimer.style.width = '200px';
-        uraniumTimer.style.height = '200px';
+        uraniumTimer.classList.add('timer-circle');
         uraniumTimer.style.display = 'none';
-        uraniumTimer.style.zIndex = '5';
         const uraniumCircle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
         uraniumCircle.setAttribute('cx', '50');
         uraniumCircle.setAttribute('cy', '50');
@@ -518,13 +680,15 @@
         uraniumCircle.setAttribute('stroke-dasharray', '283');
         uraniumCircle.setAttribute('stroke-dashoffset', '0');
         uraniumTimer.appendChild(uraniumCircle);
-        gameContainer.appendChild(uraniumTimer);
+        innerContainer.appendChild(uraniumTimer);
 
+        // Toggle particle effects
         toggleParticles.addEventListener('click', () => {
             particleLevelIndex = (particleLevelIndex + 1) % particleLevels.length;
             toggleParticles.textContent = `✨ Particle: ${particleLevels[particleLevelIndex].name}`;
         });
 
+        // Toggle shop visibility
         toggleShop.addEventListener('click', () => {
             if (shopItems.style.display === 'none' || shopItems.style.display === '') {
                 shopItems.style.display = 'flex';
@@ -537,6 +701,7 @@
             }
         });
 
+        // Toggle info panel visibility
         toggleInfo.addEventListener('click', () => {
             if (infoContent.style.display === 'none' || infoContent.style.display === '') {
                 infoContent.style.display = 'block';
@@ -549,13 +714,31 @@
             }
         });
 
+        // Handle secret code input
         enterCodeButton.addEventListener('click', () => {
             const code = secretCodeInput.value;
-            if (code === 'ADM_here!') {
-                score = Infinity;
-                isAdmin = true;
-                rebirthButtons.style.display = 'grid';
-            } else if (code === 'I_want_more!') {
+            if (code === 'R0') jumpToRebirth(0);
+            else if (code === 'R1') jumpToRebirth(1);
+            else if (code === 'R2') jumpToRebirth(2);
+            else if (code === 'R3') jumpToRebirth(3);
+            else if (code === 'R4') jumpToRebirth(4);
+            else if (code === 'R5') jumpToRebirth(5);
+            else if (code === 'R6') jumpToRebirth(6);
+            else if (code === 'R7') jumpToRebirth(7);
+            else if (code === 'R8') jumpToRebirth(8);
+            else if (code === 'R9') jumpToRebirth(9);
+            else if (code === 'R10') jumpToRebirth(10);
+            else if (code === 'R11') jumpToRebirth(11);
+            else if (code === 'R12') jumpToRebirth(12);
+            else if (code === 'R13') jumpToRebirth(13);
+            else if (code === 'R14') jumpToRebirth(14);
+            else if (code === 'R15') jumpToRebirth(15);
+            else if (code === 'R16') jumpToRebirth(16);
+            else if (code === 'R17') jumpToRebirth(17);
+            else if (code === 'R18') jumpToRebirth(18);
+            else if (code === 'R19') jumpToRebirth(19);
+            else if (code === 'R20') jumpToRebirth(20);
+            else if (code === 'I_want_more!') {
                 overrideClickValue = true;
                 clickValue = 5;
                 setupAutoClick();
@@ -563,11 +746,31 @@
                 setupCyberClick();
             } else if (code === 'OH_MY_PC!') {
                 particleMultiplier = 5;
+            } else if (code === 'infcoin') {
+                score = Infinity;
             }
             secretCodeInput.value = '';
             updateScore();
         });
 
+        // Format numbers with suffixes (k, M, B, T, Q)
+        function formatNumber(num, isScore = false) {
+            if (!isFinite(num)) return 'Infinity';
+            const absNum = Math.abs(num);
+            if (absNum < 1000) return isScore ? num.toFixed(2) : num.toFixed(0);
+            const suffixes = ['k', 'M', 'B', 'T', 'Q'];
+            const maxTier = suffixes.length;
+            const tier = Math.min(maxTier, Math.floor(Math.log10(absNum) / 3));
+            if (tier === 0) return isScore ? num.toFixed(2) : num.toFixed(0);
+            if (tier < maxTier) {
+                const scaled = num / Math.pow(10, tier * 3);
+                return scaled.toFixed(1).replace(/\.0$/, '') + suffixes[tier - 1];
+            }
+            const scaled = num / Math.pow(10, (maxTier) * 3);
+            return scaled.toFixed(2).replace(/\.00$/, '') + suffixes[maxTier - 1];
+        }
+
+        // Jump to a specific rebirth level
         function jumpToRebirth(n) {
             if (n === rebirthCount) return;
             raccoon.style.pointerEvents = 'none';
@@ -580,39 +783,49 @@
             cyberClickIntervalId = null;
             mitosisIntervalId = null;
             if (pizzaTimeout) clearTimeout(pizzaTimeout);
+            if (coffeeTimeout) clearTimeout(coffeeTimeout);
             if (uraniumTimeout) clearTimeout(uraniumTimeout);
             pizzaTimeout = null;
+            coffeeTimeout = null;
             uraniumTimeout = null;
             pizzaTimer.style.display = 'none';
+            coffeeTimer.style.display = 'none';
             uraniumTimer.style.display = 'none';
             orbitingRaccoons.forEach(o => o.element.remove());
             orbitingRaccoons = [];
+            connections.forEach(c => c.element.remove());
+            connections = [];
             buyAutoclicker.disabled = true;
             buyGlasses.disabled = true;
             buyTrashcan.disabled = true;
             buyHotClick.disabled = true;
             buyCyberClick.disabled = true;
             buyPizza.disabled = true;
+            buyCoffee.disabled = true;
             buyUranium.disabled = true;
             buyMitosis.disabled = true;
+            buyNeuralNetwork.disabled = true;
             toggleShop.disabled = true;
-            toggleInfo.disabled =_domainname_ ;
+            toggleInfo.disabled = true;
             toggleParticles.disabled = true;
-            gameContainer.classList.remove('endgame');
+            innerContainer.classList.remove('endgame');
             endgameMessage.style.display = 'none';
+            endgameMessage.classList.remove('white');
             scoreElement.style.display = 'flex';
             clickCounterElement.style.display = 'block';
             playtimeElement.style.display = 'block';
             shopContainer.style.display = 'flex';
             rebirthLabel.style.display = 'block';
             rebirthBarContainer.style.display = 'block';
-            rebirthCounter.style.display = 'block';
-            rebirthProgressContainer.style.display = 'block';
-            gameContainer.classList.add('rebirth');
+            if (rebirthCount >= 1) {
+                rebirthCounter.style.display = 'block';
+                rebirthProgressContainer.style.display = 'block';
+            }
+            innerContainer.classList.add('rebirth');
             setTimeout(() => {
-                gameContainer.classList.remove('rebirth');
+                innerContainer.classList.remove('rebirth');
                 rebirthCount = n;
-                rebirthMultiplier = Math.max(0.1, 1 - (rebirthCount + 1) * 0.1);
+                rebirthMultiplier = Math.max(0.1, 1 - (rebirthCount + 1) * 0.05);
                 rebirthThreshold = 1000 * Math.pow(2, rebirthCount);
                 rebirthClicks = 0;
                 score = 0;
@@ -624,27 +837,38 @@
                 trashcans = 0;
                 trashcanCost = 50;
                 hotClicks = 0;
-                hotClickCost = 200;
+                hotClickCost = 200 * Math.pow(2, rebirthCount);
                 cyberClicks = 0;
-                cyberClickCost = 700;
-                pizzaCost = 300;
-                uraniumCost = 10000;
+                cyberClickCost = 700 * Math.pow(2, rebirthCount);
+                pizzaCost = 300 * Math.pow(2, rebirthCount);
+                coffeeCost = 1500 * Math.pow(2, rebirthCount);
+                uraniumCost = 10000 * Math.pow(2, rebirthCount);
+                neuralNetworks = 0;
+                neuralNetworkCost = 100000000 * Math.pow(2, rebirthCount);
                 mitosisBought = false;
                 mitoticAutoClickers = 0;
+                mitosisCost = 90000 * Math.pow(5, rebirthCount);
                 autoclickInterval = 1500;
                 hotClickInterval = 1500 / 4;
                 cyberClickInterval = 1500;
                 isHotClickUnlocked = rebirthCount >= 2;
                 isPizzaUnlocked = rebirthCount >= 3;
                 isCyberClickUnlocked = rebirthCount >= 5;
+                isCoffeeUnlocked = rebirthCount >= 8;
                 isUraniumUnlocked = rebirthCount >= 8;
-                isMitosisUnlocked = rebirthCount >= 9;
+                isNeuralNetworkUnlocked = rebirthCount >= 15;
+                isMitosisUnlocked = rebirthCount >= 18;
                 buyHotClick.style.display = isHotClickUnlocked ? 'block' : 'none';
                 buyCyberClick.style.display = isCyberClickUnlocked ? 'block' : 'none';
                 buyPizza.style.display = isPizzaUnlocked ? 'block' : 'none';
+                buyCoffee.style.display = isCoffeeUnlocked ? 'block' : 'none';
                 buyUranium.style.display = isUraniumUnlocked ? 'block' : 'none';
                 buyMitosis.style.display = isMitosisUnlocked && !mitosisBought ? 'block' : 'none';
-                rebirthButtons.style.display = isAdmin ? 'grid' : 'none';
+                buyNeuralNetwork.style.display = isNeuralNetworkUnlocked ? 'block' : 'none';
+                if (rebirthCount >= 1) {
+                    rebirthCounter.style.display = 'block';
+                    rebirthProgressContainer.style.display = 'block';
+                }
                 setupAutoClick();
                 setupHotClick();
                 setupCyberClick();
@@ -658,6 +882,7 @@
             }, 1000);
         }
 
+        // Update playtime display
         setInterval(() => {
             const elapsed = Math.floor((Date.now() - startTime) / 1000);
             const hours = Math.floor(elapsed / 3600).toString().padStart(2, '0');
@@ -666,35 +891,89 @@
             playtimeElement.textContent = `${hours}:${mins}:${secs}`;
         }, 1000);
 
+        // Animate orbiting raccoons and neural network connections
         function animateOrbiters() {
-            orbitingRaccoons.forEach(o => {
+            orbitingRaccoons.forEach((o, index) => {
                 o.angle += o.speed / 60;
                 if (o.angle > 360) o.angle -= 360;
                 const rad = o.angle * Math.PI / 180;
-                const x = centerX + o.radius * Math.cos(rad) - 15;
-                const y = centerY + o.radius * Math.sin(rad) - 15;
+                const x = centerX + o.radius * Math.cos(rad) - 6.5;
+                const y = centerY + o.radius * Math.sin(rad) - 6.5;
                 o.element.style.left = `${x}px`;
                 o.element.style.top = `${y}px`;
             });
+
+            // Create infinite neural network connections when neuralNetworks > 0
+            if (neuralNetworks > 0 && orbitingRaccoons.length >= 2) {
+                const maxConnections = Math.floor(orbitingRaccoons.length / 2);
+                const currentConnections = connections.length;
+                if (currentConnections < maxConnections) {
+                    const availableOrbiters = orbitingRaccoons.map((_, i) => i);
+                    const usedPairs = new Set(connections.map(c => `${Math.min(c.orbiter1, c.orbiter2)}-${Math.max(c.orbiter1, c.orbiter2)}`));
+                    let newConnections = 0;
+                    while (newConnections < maxConnections - currentConnections && availableOrbiters.length >= 2) {
+                        const idx1 = availableOrbiters[Math.floor(Math.random() * availableOrbiters.length)];
+                        availableOrbiters.splice(availableOrbiters.indexOf(idx1), 1);
+                        const idx2 = availableOrbiters[Math.floor(Math.random() * availableOrbiters.length)];
+                        availableOrbiters.splice(availableOrbiters.indexOf(idx2), 1);
+                        const pairKey = `${Math.min(idx1, idx2)}-${Math.max(idx1, idx2)}`;
+                        if (!usedPairs.has(pairKey)) {
+                            const lineSvg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+                            lineSvg.style.position = 'absolute';
+                            lineSvg.style.width = '100%';
+                            lineSvg.style.height = '100%';
+                            lineSvg.classList.add('connection-line');
+                            const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+                            line.setAttribute('stroke', 'white');
+                            line.setAttribute('stroke-width', '1');
+                            lineSvg.appendChild(line);
+                            innerContainer.appendChild(lineSvg);
+                            connections.push({ orbiter1: idx1, orbiter2: idx2, element: lineSvg });
+                            usedPairs.add(pairKey);
+                            newConnections++;
+                        }
+                    }
+                }
+            }
+
+            // Update connection lines
+            connections.forEach(c => {
+                const orb1 = orbitingRaccoons[c.orbiter1];
+                const orb2 = orbitingRaccoons[c.orbiter2];
+                if (orb1 && orb2) {
+                    const x1 = centerX + orb1.radius * Math.cos(orb1.angle * Math.PI / 180);
+                    const y1 = centerY + orb1.radius * Math.sin(orb1.angle * Math.PI / 180);
+                    const x2 = centerX + orb2.radius * Math.cos(orb2.angle * Math.PI / 180);
+                    const y2 = centerY + orb2.radius * Math.sin(orb2.angle * Math.PI / 180);
+                    c.element.setAttribute('x1', x1);
+                    c.element.setAttribute('y1', y1);
+                    c.element.setAttribute('x2', x2);
+                    c.element.setAttribute('y2', y2);
+                }
+            });
+
             requestAnimationFrame(animateOrbiters);
         }
         animateOrbiters();
 
+        // Update score and related displays
         function updateScore() {
-            scoreElement.textContent = `${isFinite(score) ? score.toFixed(2) : 'Infinity'} 💰`;
+            scoreElement.textContent = `${formatNumber(score, true)} 💰`;
             clickCounterElement.textContent = `Clicks: ${totalClicks}`;
-            rebirthCounter.textContent = `Rebirths: ${rebirthCount}/10`;
-            rebirthProgressBar.style.width = `${(rebirthCount / 10) * 100}%`;
+            rebirthCounter.textContent = `Rebirths: ${rebirthCount}/20`;
+            rebirthProgressBar.style.width = `${(rebirthCount / 20) * 100}%`;
             updateShopButtons();
             updateRebirthBar();
         }
 
+        // Update rebirth progress bar
         function updateRebirthBar() {
-            if (rebirthCount >= 10) {
+            if (rebirthCount >= 20) {
                 rebirthBar.style.width = '0%';
                 rebirthLabel.textContent = 'Maximum Rebirths Reached';
-                gameContainer.classList.add('endgame');
+                innerContainer.classList.add('endgame');
                 endgameMessage.style.display = 'block';
+                endgameMessage.classList.add('white');
                 scoreElement.style.display = 'none';
                 clickCounterElement.style.display = 'none';
                 playtimeElement.style.display = 'none';
@@ -714,13 +993,18 @@
                 cyberClickIntervalId = null;
                 mitosisIntervalId = null;
                 if (pizzaTimeout) clearTimeout(pizzaTimeout);
+                if (coffeeTimeout) clearTimeout(coffeeTimeout);
                 if (uraniumTimeout) clearTimeout(uraniumTimeout);
                 pizzaTimeout = null;
+                coffeeTimeout = null;
                 uraniumTimeout = null;
                 pizzaTimer.style.display = 'none';
+                coffeeTimer.style.display = 'none';
                 uraniumTimer.style.display = 'none';
                 orbitingRaccoons.forEach(o => o.element.remove());
                 orbitingRaccoons = [];
+                connections.forEach(c => c.element.remove());
+                connections = [];
                 return;
             }
             const progress = Math.min((rebirthClicks / rebirthThreshold) * 100, 100);
@@ -731,6 +1015,7 @@
             }
         }
 
+        // Trigger rebirth sequence
         function triggerRebirth() {
             raccoon.style.pointerEvents = 'none';
             if (autoClickIntervalId) clearInterval(autoClickIntervalId);
@@ -742,27 +1027,34 @@
             cyberClickIntervalId = null;
             mitosisIntervalId = null;
             if (pizzaTimeout) clearTimeout(pizzaTimeout);
+            if (coffeeTimeout) clearTimeout(coffeeTimeout);
             if (uraniumTimeout) clearTimeout(uraniumTimeout);
             pizzaTimeout = null;
+            coffeeTimeout = null;
             uraniumTimeout = null;
             pizzaTimer.style.display = 'none';
+            coffeeTimer.style.display = 'none';
             uraniumTimer.style.display = 'none';
             orbitingRaccoons.forEach(o => o.element.remove());
             orbitingRaccoons = [];
+            connections.forEach(c => c.element.remove());
+            connections = [];
             buyAutoclicker.disabled = true;
             buyGlasses.disabled = true;
             buyTrashcan.disabled = true;
             buyHotClick.disabled = true;
             buyCyberClick.disabled = true;
             buyPizza.disabled = true;
+            buyCoffee.disabled = true;
             buyUranium.disabled = true;
             buyMitosis.disabled = true;
+            buyNeuralNetwork.disabled = true;
             toggleShop.disabled = true;
             toggleInfo.disabled = true;
             toggleParticles.disabled = true;
-            gameContainer.classList.add('rebirth');
+            innerContainer.classList.add('rebirth');
             setTimeout(() => {
-                gameContainer.classList.remove('rebirth');
+                innerContainer.classList.remove('rebirth');
                 score = 0;
                 clickValue = overrideClickValue ? 5 : 1;
                 autoclickers = 0;
@@ -772,31 +1064,42 @@
                 trashcans = 0;
                 trashcanCost = 50;
                 hotClicks = 0;
-                hotClickCost = 200;
+                hotClickCost = 200 * Math.pow(2, rebirthCount + 1);
                 cyberClicks = 0;
-                cyberClickCost = 700;
-                pizzaCost = 300;
-                uraniumCost = 10000;
+                cyberClickCost = 700 * Math.pow(2, rebirthCount + 1);
+                pizzaCost = 300 * Math.pow(2, rebirthCount + 1);
+                coffeeCost = 1500 * Math.pow(2, rebirthCount + 1);
+                uraniumCost = 10000 * Math.pow(2, rebirthCount + 1);
+                neuralNetworks = 0;
+                neuralNetworkCost = 100000000 * Math.pow(2, rebirthCount + 1);
                 mitosisBought = false;
                 mitoticAutoClickers = 0;
+                mitosisCost = 90000 * Math.pow(5, rebirthCount + 1);
                 autoclickInterval = 1500;
                 hotClickInterval = 1500 / 4;
                 cyberClickInterval = 1500;
                 rebirthClicks = 0;
-                rebirthMultiplier = Math.max(0.1, 1 - (rebirthCount + 1) * 0.1);
+                rebirthMultiplier = Math.max(0.1, 1 - (rebirthCount + 1) * 0.05);
                 rebirthThreshold *= 2;
                 rebirthCount++;
                 isHotClickUnlocked = rebirthCount >= 2;
                 isPizzaUnlocked = rebirthCount >= 3;
                 isCyberClickUnlocked = rebirthCount >= 5;
+                isCoffeeUnlocked = rebirthCount >= 8;
                 isUraniumUnlocked = rebirthCount >= 8;
-                isMitosisUnlocked = rebirthCount >= 9;
+                isNeuralNetworkUnlocked = rebirthCount >= 15;
+                isMitosisUnlocked = rebirthCount >= 18;
                 buyHotClick.style.display = isHotClickUnlocked ? 'block' : 'none';
                 buyCyberClick.style.display = isCyberClickUnlocked ? 'block' : 'none';
                 buyPizza.style.display = isPizzaUnlocked ? 'block' : 'none';
+                buyCoffee.style.display = isCoffeeUnlocked ? 'block' : 'none';
                 buyUranium.style.display = isUraniumUnlocked ? 'block' : 'none';
                 buyMitosis.style.display = isMitosisUnlocked && !mitosisBought ? 'block' : 'none';
-                rebirthButtons.style.display = isAdmin ? 'grid' : 'none';
+                buyNeuralNetwork.style.display = isNeuralNetworkUnlocked ? 'block' : 'none';
+                if (rebirthCount >= 1) {
+                    rebirthCounter.style.display = 'block';
+                    rebirthProgressContainer.style.display = 'block';
+                }
                 setupAutoClick();
                 setupHotClick();
                 setupCyberClick();
@@ -810,6 +1113,7 @@
             }, 1000);
         }
 
+        // Update raccoon appearance based on active effects
         function updateRaccoonAppearance() {
             const classes = ['green', 'red'];
             classes.forEach(cls => raccoon.classList.remove(cls));
@@ -817,75 +1121,133 @@
             if (hotClicks > 0) raccoon.classList.add('red');
         }
 
+        // Calculate Neural Network multiplier
+        function getNeuralNetworkMultiplier() {
+            return Math.pow(10, neuralNetworks);
+        }
+
+        // Setup Auto Clicker interval
         function setupAutoClick() {
             if (autoClickIntervalId) clearInterval(autoClickIntervalId);
             if (autoclickers > 0 || mitoticAutoClickers > 0) {
                 autoClickIntervalId = setInterval(() => {
-                    const clicks = autoclickers + mitoticAutoClickers;
-                    score += clicks * (overrideClickValue ? 5 : clickValue) * (overrideClickValue ? 1 : rebirthMultiplier);
-                    totalClicks += clicks;
-                    if (rebirthCount < 10) rebirthClicks += clicks;
-                    const particleCount = Math.floor(clicks * particleLevels[particleLevelIndex].multiplier * particleMultiplier);
-                    for (let i = 0; i < particleCount; i++) createParticle('🦝');
+                    let totalAutoClicks = 0;
+                    orbitingRaccoons.forEach(o => {
+                        if (o.type === 'auto' || o.type === 'mitosis') {
+                            totalAutoClicks += (o.type === 'auto' ? 1 : 1);
+                        }
+                    });
+                    const multiplier = getNeuralNetworkMultiplier();
+                    score += totalAutoClicks * (overrideClickValue ? 5 : clickValue) * (overrideClickValue ? 1 : rebirthMultiplier) * multiplier;
+                    totalClicks += totalAutoClicks;
+                    if (rebirthCount < 20) rebirthClicks += totalAutoClicks;
+                    const particleCount = Math.floor(totalAutoClicks * particleLevels[particleLevelIndex].multiplier * particleMultiplier);
+                    for (let i = 0; i < particleCount; i++) {
+                        raccoon.classList.add('clicked');
+                        setTimeout(() => raccoon.classList.remove('clicked'), 200);
+                        createParticle('🦝');
+                    }
                     updateScore();
                 }, autoclickInterval);
             }
         }
 
+        // Setup Hot Click interval
         function setupHotClick() {
             if (hotClickIntervalId) clearInterval(hotClickIntervalId);
             if (hotClicks > 0) {
                 hotClickIntervalId = setInterval(() => {
-                    score += hotClicks * (overrideClickValue ? 5 : clickValue) * (overrideClickValue ? 1 : rebirthMultiplier);
-                    totalClicks += hotClicks;
-                    if (rebirthCount < 10) rebirthClicks += hotClicks;
-                    const particleCount = Math.floor(hotClicks * particleLevels[particleLevelIndex].multiplier * particleMultiplier);
-                    for (let i = 0; i < particleCount; i++) createParticle('🔥');
+                    let totalHotClicks = 0;
+                    orbitingRaccoons.forEach(o => {
+                        if (o.type === 'hot') {
+                            totalHotClicks += 1;
+                        }
+                    });
+                    const multiplier = getNeuralNetworkMultiplier();
+                    score += totalHotClicks * (overrideClickValue ? 5 : clickValue) * (overrideClickValue ? 1 : rebirthMultiplier) * multiplier;
+                    totalClicks += totalHotClicks;
+                    if (rebirthCount < 20) rebirthClicks += totalHotClicks;
+                    const particleCount = Math.floor(totalHotClicks * particleLevels[particleLevelIndex].multiplier * particleMultiplier);
+                    for (let i = 0; i < particleCount; i++) {
+                        raccoon.classList.add('clicked');
+                        setTimeout(() => raccoon.classList.remove('clicked'), 200);
+                        createParticle('🔥');
+                    }
                     updateScore();
                 }, hotClickInterval);
             }
         }
 
+        // Setup Cyber Click interval
         function setupCyberClick() {
             if (cyberClickIntervalId) clearInterval(cyberClickIntervalId);
             if (cyberClicks > 0) {
                 cyberClickIntervalId = setInterval(() => {
-                    const clicks = cyberClicks * 5;
-                    score += clicks * (overrideClickValue ? 5 : clickValue) * (overrideClickValue ? 1 : rebirthMultiplier);
-                    totalClicks += clicks;
-                    if (rebirthCount < 10) rebirthClicks += clicks;
-                    const particleCount = Math.floor(clicks * particleLevels[particleLevelIndex].multiplier * particleMultiplier);
-                    for (let i = 0; i < particleCount; i++) createParticle('🦝');
+                    let totalCyberClicks = 0;
+                    orbitingRaccoons.forEach(o => {
+                        if (o.type === 'cyber') {
+                            totalCyberClicks += 5;
+                        }
+                    });
+                    const multiplier = getNeuralNetworkMultiplier();
+                    score += totalCyberClicks * (overrideClickValue ? 5 : clickValue) * (overrideClickValue ? 1 : rebirthMultiplier) * multiplier;
+                    totalClicks += totalCyberClicks;
+                    if (rebirthCount < 20) rebirthClicks += totalCyberClicks;
+                    const particleCount = Math.floor(totalCyberClicks * particleLevels[particleLevelIndex].multiplier * particleMultiplier);
+                    for (let i = 0; i < particleCount; i++) {
+                        raccoon.classList.add('clicked');
+                        setTimeout(() => raccoon.classList.remove('clicked'), 200);
+                        createParticle('🦝');
+                    }
                     updateScore();
                 }, cyberClickInterval);
             }
         }
 
+        // Setup Mitosis doubling interval
         function setupMitosis() {
             if (mitosisIntervalId) clearInterval(mitosisIntervalId);
             if (mitoticAutoClickers > 0) {
                 mitosisIntervalId = setInterval(() => {
+                    const currentCount = mitoticAutoClickers;
                     mitoticAutoClickers *= 2;
+                    const newOrbiters = mitoticAutoClickers - orbitingRaccoons.filter(o => o.type === 'mitosis').length;
+                    if (newOrbiters > 0) {
+                        for (let i = 0; i < newOrbiters; i++) {
+                            const orbiter = document.createElement('div');
+                            orbiter.innerHTML = '🦝';
+                            orbiter.style.position = 'absolute';
+                            orbiter.style.width = '13px';
+                            orbiter.style.height = '13px';
+                            orbiter.style.fontSize = '13px';
+                            orbiter.style.textAlign = 'center';
+                            orbiter.style.lineHeight = '13px';
+                            orbiter.style.zIndex = '5';
+                            innerContainer.appendChild(orbiter);
+                            orbitingRaccoons.push({
+                                element: orbiter,
+                                angle: Math.random() * 360,
+                                speed: 20 + Math.random() * 20,
+                                radius: 100 + Math.random() * 50,
+                                type: 'mitosis'
+                            });
+                        }
+                    }
                     setupAutoClick();
                     updateScore();
                 }, 10000);
             }
         }
 
+        // Create particle effect
         function createParticle(emoji = '🦝') {
             const particle = document.createElement('div');
             particle.classList.add('particle');
             particle.style.zIndex = 4;
             particle.innerHTML = emoji;
-            particle.style.fontSize = '10px';
-            particle.style.width = '10px';
-            particle.style.height = '10px';
-            particle.style.display = 'flex';
-            particle.style.alignItems = 'center';
-            particle.style.justifyContent = 'center';
-            gameContainer.appendChild(particle);
+            innerContainer.appendChild(particle);
             const raccoonRect = raccoon.getBoundingClientRect();
-            const containerRect = gameContainer.getBoundingClientRect();
+            const containerRect = innerContainer.getBoundingClientRect();
             const startX = raccoonRect.left + raccoonRect.width / 2 - containerRect.left;
             const startY = raccoonRect.top + raccoonRect.height / 2 - containerRect.top;
             particle.style.left = `${startX}px`;
@@ -922,14 +1284,24 @@
             requestAnimationFrame(animateParticle);
         }
 
+        // Handle raccoon click
         raccoon.addEventListener('click', () => {
-            if (rebirthCount >= 10) {
-                jumpToRebirth(0);
+            if (rebirthCount >= 20) {
+                raccoon.classList.add('shake');
+                innerContainer.classList.add('rebirth');
+                setTimeout(() => {
+                    raccoon.classList.remove('shake');
+                    setTimeout(() => {
+                        innerContainer.classList.remove('rebirth');
+                        jumpToRebirth(0);
+                    }, 500);
+                }, 500);
                 return;
             }
-            score += (overrideClickValue ? 5 : clickValue) * (overrideClickValue ? 1 : rebirthMultiplier);
+            const multiplier = getNeuralNetworkMultiplier();
+            score += (overrideClickValue ? 5 : clickValue) * (overrideClickValue ? 1 : rebirthMultiplier) * multiplier;
             totalClicks++;
-            if (rebirthCount < 10) rebirthClicks++;
+            if (rebirthCount < 20) rebirthClicks++;
             raccoon.classList.add('clicked');
             setTimeout(() => raccoon.classList.remove('clicked'), 200);
             const particleCount = Math.floor(1 * particleLevels[particleLevelIndex].multiplier * particleMultiplier);
@@ -937,51 +1309,59 @@
             updateScore();
         });
 
+        // Update shop button states and text
         function updateShopButtons() {
             buyAutoclicker.disabled = score < autoclickerCost || mitosisBought;
             buyGlasses.disabled = score < glassesCost;
-            buyTrashcan.disabled = score < trashcanCost || overrideClickValue;
+            buyTrashcan.disabled = score < trashcanCost || overrideClickValue || trashcans >= 20 || rebirthCount >= 11;
             buyHotClick.disabled = score < hotClickCost || !isHotClickUnlocked || mitosisBought;
             buyCyberClick.disabled = score < cyberClickCost || !isCyberClickUnlocked;
             buyPizza.disabled = score < pizzaCost || !isPizzaUnlocked || pizzaTimeout;
+            buyCoffee.disabled = score < coffeeCost || !isCoffeeUnlocked || coffeeTimeout;
             buyUranium.disabled = score < uraniumCost || !isUraniumUnlocked;
             buyMitosis.disabled = score < mitosisCost || !isMitosisUnlocked || mitosisBought;
-            buyAutoclicker.textContent = `🤖 Auto Clicker: ${autoclickerCost} Racoins (${autoclickers})`;
-            buyGlasses.textContent = `🕶️ Glasses: ${glassesCost} Racoins (${glasses})`;
-            buyTrashcan.textContent = `🗑️ Trashcan: ${trashcanCost} Racoins (${trashcans})`;
-            buyHotClick.textContent = `🔥 Hot Click: ${hotClickCost} Racoins (${hotClicks})`;
-            buyCyberClick.textContent = `💾 Cyber Click: ${cyberClickCost} Racoins (${cyberClicks})`;
-            buyPizza.textContent = `🍕 Pizza: ${pizzaCost} Racoins`;
-            buyUranium.textContent = `☢️ Uranium 235: ${uraniumCost} Racoins`;
-            buyMitosis.textContent = `🧬 Mitosis: ${mitosisCost} Racoins`;
+            buyNeuralNetwork.disabled = score < neuralNetworkCost || !isNeuralNetworkUnlocked;
+            buyAutoclicker.textContent = `🤖 Auto Clicker: ${formatNumber(autoclickerCost, true)} Racoins (${autoclickers})`;
+            buyGlasses.textContent = `🕶️ Glasses: ${formatNumber(glassesCost)} Racoins (${glasses})`;
+            buyTrashcan.textContent = `🗑️ Trashcan: ${formatNumber(trashcanCost)} Racoins (${trashcans}/20)`;
+            buyHotClick.textContent = `🔥 Hot Click: ${formatNumber(hotClickCost)} Racoins (${hotClicks})`;
+            buyCyberClick.textContent = `💾 Cyber Click: ${formatNumber(cyberClickCost)} Racoins (${cyberClicks})`;
+            buyPizza.textContent = `🍕 Pizza: ${formatNumber(pizzaCost)} Racoins`;
+            buyCoffee.textContent = `☕ Coffee: ${formatNumber(coffeeCost)} Racoins`;
+            buyUranium.textContent = `☢️ Uranium 235: ${formatNumber(uraniumCost)} Racoins`;
+            buyMitosis.textContent = `🧬 Mitosis: ${formatNumber(mitosisCost)} Racoins`;
+            buyNeuralNetwork.textContent = `🧠 Neural Network: ${formatNumber(neuralNetworkCost)} Racoins (${neuralNetworks})`;
         }
 
+        // Purchase Auto Clicker
         buyAutoclicker.addEventListener('click', () => {
             if (score >= autoclickerCost && !mitosisBought) {
                 score -= autoclickerCost;
                 autoclickers++;
-                autoclickerCost *= 10;
+                autoclickerCost *= 1.5;
                 const orbiter = document.createElement('div');
                 orbiter.innerHTML = '🦝';
                 orbiter.style.position = 'absolute';
-                orbiter.style.width = '30px';
-                orbiter.style.height = '30px';
-                orbiter.style.fontSize = '30px';
+                orbiter.style.width = '13px';
+                orbiter.style.height = '13px';
+                orbiter.style.fontSize = '13px';
                 orbiter.style.textAlign = 'center';
-                orbiter.style.lineHeight = '30px';
+                orbiter.style.lineHeight = '13px';
                 orbiter.style.zIndex = '5';
-                gameContainer.appendChild(orbiter);
+                innerContainer.appendChild(orbiter);
                 orbitingRaccoons.push({
                     element: orbiter,
                     angle: Math.random() * 360,
                     speed: 20 + Math.random() * 20,
-                    radius: 100 + Math.random() * 50
+                    radius: 100 + Math.random() * 50,
+                    type: 'auto'
                 });
                 setupAutoClick();
                 updateScore();
             }
         });
 
+        // Purchase Glasses
         buyGlasses.addEventListener('click', () => {
             if (score >= glassesCost) {
                 score -= glassesCost;
@@ -997,8 +1377,9 @@
             }
         });
 
+        // Purchase Trashcan
         buyTrashcan.addEventListener('click', () => {
-            if (score >= trashcanCost && !overrideClickValue) {
+            if (score >= trashcanCost && !overrideClickValue && trashcans < 20 && rebirthCount < 11) {
                 score -= trashcanCost;
                 trashcans++;
                 trashcanCost *= 2;
@@ -1010,6 +1391,7 @@
             }
         });
 
+        // Purchase Hot Click
         buyHotClick.addEventListener('click', () => {
             if (score >= hotClickCost && isHotClickUnlocked && !mitosisBought) {
                 score -= hotClickCost;
@@ -1019,18 +1401,19 @@
                 orbiter.innerHTML = '🦝';
                 orbiter.classList.add('orbiter-hot');
                 orbiter.style.position = 'absolute';
-                orbiter.style.width = '30px';
-                orbiter.style.height = '30px';
-                orbiter.style.fontSize = '30px';
+                orbiter.style.width = '13px';
+                orbiter.style.height = '13px';
+                orbiter.style.fontSize = '13px';
                 orbiter.style.textAlign = 'center';
-                orbiter.style.lineHeight = '30px';
+                orbiter.style.lineHeight = '13px';
                 orbiter.style.zIndex = '5';
-                gameContainer.appendChild(orbiter);
+                innerContainer.appendChild(orbiter);
                 orbitingRaccoons.push({
                     element: orbiter,
                     angle: Math.random() * 360,
                     speed: 20 + Math.random() * 20,
-                    radius: 100 + Math.random() * 50
+                    radius: 100 + Math.random() * 50,
+                    type: 'hot'
                 });
                 setupHotClick();
                 updateRaccoonAppearance();
@@ -1038,6 +1421,7 @@
             }
         });
 
+        // Purchase Cyber Click
         buyCyberClick.addEventListener('click', () => {
             if (score >= cyberClickCost && isCyberClickUnlocked) {
                 score -= cyberClickCost;
@@ -1047,18 +1431,19 @@
                 orbiter.innerHTML = '🦝';
                 orbiter.classList.add('orbiter-cyber');
                 orbiter.style.position = 'absolute';
-                orbiter.style.width = '30px';
-                orbiter.style.height = '30px';
-                orbiter.style.fontSize = '30px';
+                orbiter.style.width = '13px';
+                orbiter.style.height = '13px';
+                orbiter.style.fontSize = '13px';
                 orbiter.style.textAlign = 'center';
-                orbiter.style.lineHeight = '30px';
+                orbiter.style.lineHeight = '13px';
                 orbiter.style.zIndex = '5';
-                gameContainer.appendChild(orbiter);
+                innerContainer.appendChild(orbiter);
                 orbitingRaccoons.push({
                     element: orbiter,
                     angle: Math.random() * 360,
                     speed: 20 + Math.random() * 20,
-                    radius: 100 + Math.random() * 50
+                    radius: 100 + Math.random() * 50,
+                    type: 'cyber'
                 });
                 setupCyberClick();
                 updateRaccoonAppearance();
@@ -1066,6 +1451,7 @@
             }
         });
 
+        // Purchase Pizza
         buyPizza.addEventListener('click', () => {
             if (score >= pizzaCost && isPizzaUnlocked && !pizzaTimeout) {
                 score -= pizzaCost;
@@ -1090,10 +1476,10 @@
                     pizzaTimeout = null;
                     pizzaTimer.style.display = 'none';
                     updateShopButtons();
-                }, 10000);
+                }, 5000);
                 pizzaTimer.style.display = 'block';
                 const pizzaStart = Date.now();
-                const pizzaDuration = 10000;
+                const pizzaDuration = 5000;
                 function animatePizza() {
                     const elapsed = Date.now() - pizzaStart;
                     if (elapsed >= pizzaDuration) {
@@ -1109,25 +1495,64 @@
             }
         });
 
+        // Purchase Coffee
+        buyCoffee.addEventListener('click', () => {
+            if (score >= coffeeCost && isCoffeeUnlocked && !coffeeTimeout) {
+                score -= coffeeCost;
+                coffeeCost *= 10;
+                if (coffeeTimeout) clearTimeout(coffeeTimeout);
+                const originalAutoInterval = autoclickInterval;
+                const originalHotInterval = hotClickInterval;
+                const originalCyberInterval = cyberClickInterval;
+                autoclickInterval /= 10;
+                hotClickInterval /= 10;
+                cyberClickInterval /= 10;
+                setupAutoClick();
+                setupHotClick();
+                setupCyberClick();
+                coffeeTimeout = setTimeout(() => {
+                    autoclickInterval = originalAutoInterval;
+                    hotClickInterval = originalHotInterval;
+                    cyberClickInterval = originalCyberInterval;
+                    setupAutoClick();
+                    setupHotClick();
+                    setupCyberClick();
+                    coffeeTimeout = null;
+                    coffeeTimer.style.display = 'none';
+                    updateShopButtons();
+                }, 2000);
+                coffeeTimer.style.display = 'block';
+                const coffeeStart = Date.now();
+                const coffeeDuration = 2000;
+                function animateCoffee() {
+                    const elapsed = Date.now() - coffeeStart;
+                    if (elapsed >= coffeeDuration) {
+                        coffeeTimer.style.display = 'none';
+                        return;
+                    }
+                    const progress = elapsed / coffeeDuration;
+                    coffeeCircle.setAttribute('stroke-dashoffset', progress * 283);
+                    requestAnimationFrame(animateCoffee);
+                }
+                animateCoffee();
+                updateScore();
+            }
+        });
+
+        // Purchase Uranium
         buyUranium.addEventListener('click', () => {
-            if (score >= uraniumCost && isUraniumUnlocked) {
+            if (score >= uraniumCost && isUraniumUnlocked && !uraniumTimeout) {
                 score -= uraniumCost;
                 uraniumCost *= 10;
                 if (uraniumTimeout) clearTimeout(uraniumTimeout);
                 const originalClickValue = clickValue;
                 clickValue = 1000;
-                updateRaccoonAppearance();
-                setupAutoClick();
-                setupHotClick();
-                setupCyberClick();
                 uraniumTimeout = setTimeout(() => {
-                    clickValue = overrideClickValue ? 5 : originalClickValue;
-                    updateRaccoonAppearance();
-                    setupAutoClick();
-                    setupHotClick();
-                    setupCyberClick();
+                    clickValue = originalClickValue;
                     uraniumTimeout = null;
                     uraniumTimer.style.display = 'none';
+                    updateRaccoonAppearance();
+                    updateShopButtons();
                 }, 5000);
                 uraniumTimer.style.display = 'block';
                 const uraniumStart = Date.now();
@@ -1143,10 +1568,12 @@
                     requestAnimationFrame(animateUranium);
                 }
                 animateUranium();
+                updateRaccoonAppearance();
                 updateScore();
             }
         });
 
+        // Purchase Mitosis
         buyMitosis.addEventListener('click', () => {
             if (score >= mitosisCost && isMitosisUnlocked && !mitosisBought) {
                 score -= mitosisCost;
@@ -1154,18 +1581,50 @@
                 autoclickers = 0;
                 hotClicks = 0;
                 mitoticAutoClickers = 1;
-                buyMitosis.style.display = 'none';
-                setupAutoClick();
-                setupHotClick();
-                setupMitosis();
                 orbitingRaccoons.forEach(o => o.element.remove());
                 orbitingRaccoons = [];
+                connections.forEach(c => c.element.remove());
+                connections = [];
+                const orbiter = document.createElement('div');
+                orbiter.innerHTML = '🦝';
+                orbiter.style.position = 'absolute';
+                orbiter.style.width = '13px';
+                orbiter.style.height = '13px';
+                orbiter.style.fontSize = '13px';
+                orbiter.style.textAlign = 'center';
+                orbiter.style.lineHeight = '13px';
+                orbiter.style.zIndex = '5';
+                innerContainer.appendChild(orbiter);
+                orbitingRaccoons.push({
+                    element: orbiter,
+                    angle: Math.random() * 360,
+                    speed: 20 + Math.random() * 20,
+                    radius: 100 + Math.random() * 50,
+                    type: 'mitosis'
+                });
+                buyMitosis.style.display = 'none';
+                setupMitosis();
+                updateRaccoonAppearance();
                 updateScore();
             }
         });
 
+        // Purchase Neural Network
+        buyNeuralNetwork.addEventListener('click', () => {
+            if (score >= neuralNetworkCost && isNeuralNetworkUnlocked) {
+                score -= neuralNetworkCost;
+                neuralNetworks++;
+                neuralNetworkCost *= 2;
+                setupAutoClick();
+                setupHotClick();
+                setupCyberClick();
+                setupMitosis();
+                updateScore();
+            }
+        });
+
+        // Initialize score display
         updateScore();
-        updateRaccoonAppearance();
     </script>
 </body>
 
